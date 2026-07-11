@@ -34,11 +34,3 @@ Input Image (3 x 224 x 224)
  [Global Average Pooling]
        │
  [MLP Classification Head] ──► Softmax Output Logits (4 Classes)
-
-
-## 🛠️ Installation & Setup
-
-1. **Clone the Repository:**
-   ```bash
-   git clone [https://github.com/prityd825/Mediscan-HybridViT.git](https://github.com/prityd825/Mediscan-HybridViT.git)
-   cd Mediscan-HybridViT
