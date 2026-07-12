@@ -108,34 +108,6 @@ These visualizations help verify that the network focuses on meaningful patholog
 
 ---
 
-## 📂 Project Structure
-
-```
-Mediscan-HybridViT/
-│
-├── datasets/
-│   ├── train/
-│   ├── validation/
-│   └── test/
-│
-├── models/
-│   ├── hybrid_vit.py
-│   └── modules.py
-│
-├── notebooks/
-│
-├── checkpoints/
-│
-├── utils/
-│
-├── train.py
-├── evaluate.py
-├── requirements.txt
-└── README.md
-```
-
----
-
 ## ⚙️ Installation
 
 Clone the repository:
@@ -281,7 +253,3 @@ Software Engineer
 - GitHub: https://github.com/prityd825
 
 ---
-
-## ⭐ Support
-
-If you found this repository helpful, please consider giving it a **⭐ Star**. It helps others discover the project and supports future development.
