@@ -8,7 +8,7 @@
 ![MONAI](https://img.shields.io/badge/MONAI-61D3B5?style=flat)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
 
-Dataset : https://www.kaggle.com/datasets/pritydas825/mediscan-dataset
+Dataset Link : https://www.kaggle.com/datasets/pritydas825/mediscan-dataset
 
 ---
 
