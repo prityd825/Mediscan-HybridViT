@@ -774,9 +774,9 @@ The original notebook workflow creates the required dataset splits from the conf
 
 ---
 
-# 📁 Repository Structure
+## 📁 Repository Structure
 
-The repository is intentionally kept notebook-based.
+The repository is intentionally organized as a **notebook-based research project**. The implementation, training workflows, evaluation, experiments, and test-set analysis are contained in Jupyter Notebooks.
 
 ```text
 Mediscan-HybridViT/
@@ -785,17 +785,21 @@ Mediscan-HybridViT/
 │   └── Model-related files and resources
 │
 ├── mediscan-hybridvit.ipynb
-│   └── Main model implementation and training workflow
+│   └── Main implementation, data preprocessing,
+│       model training, and validation workflow
 │
-├── mediscan-hybridvit with predication summary.ipynb
+├── mediscan-hybridvit-with-prediction-summary.ipynb
 │   └── Prediction summaries, evaluation,
-│       comparison, and additional experiments
+│       model comparison, and additional experiments
+│
+├── mediscan-hybridvit-with-test-set.ipynb
+│   └── Final test-set evaluation and performance analysis
 │
 └── README.md
     └── Project documentation
 ```
 
-> **Note:** The repository does not currently use separate `models/`, `ensemble/`, `utils/`, `train.py`, or `evaluate.py` directories/files. The implementation and experiments are contained in the available Jupyter Notebooks.
+> **Note:** This repository currently follows a notebook-based structure. It does not use separate `models/`, `utils/`, `train.py`, or `evaluate.py` files. The main implementation, training, validation, evaluation, and experimental workflows are contained in the available Jupyter Notebooks.
 
 ---
 
