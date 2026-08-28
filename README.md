@@ -1,6 +1,6 @@
-# 🩺 Mediscan-HybridViT & DenseNet-121 Baseline
+# 🩺 Mediscan-HybridViT
 
-> **A Dual-Architecture Framework for Data-Imbalanced Medical Image Classification Using Hybrid CNN–Transformer and Weighted DenseNet-121 Models**
+> **A Dual-Architecture Framework for Data-Imbalanced Medical Image Classification Using a Hybrid CNN–Transformer and DenseNet-121 Baseline**
 
 ![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)
 ![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C?style=flat\&logo=pytorch\&logoColor=white)
@@ -8,51 +8,73 @@
 ![MONAI](https://img.shields.io/badge/MONAI-Medical%20Imaging-61D3B5?style=flat)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
 
+## 📖 Overview
+
+**Mediscan-HybridViT** is a deep learning project for multi-class medical image classification. The repository implements **two different model architectures** to explore and compare CNN-based and hybrid CNN–Transformer approaches.
+
+### 🧠 Model 1 — Mediscan-HybridViT
+
+A custom hybrid architecture that combines:
+
+* **MONAI ResNet-10** for local feature extraction
+* **1×1 convolutional projection**
+* **Transformer Encoder** for global spatial feature modeling
+* **MLP classification head** for four-class prediction
+
+### 🏥 Model 2 — DenseNet-121 Baseline
+
+A MONAI **DenseNet-121** classifier used as a baseline, enhanced with **class-weighted Cross-Entropy Loss** to address the imbalanced class distribution.
+
+The two pipelines provide different approaches to the same medical image classification task and can be used for comparative experimentation.
+
+---
+
 ## 📊 Dataset
 
-This project uses the **MediScan Dataset**, containing four medical imaging categories:
+The project uses the **MediScan Dataset** from Kaggle.
+
+**Dataset Link:**
+https://www.kaggle.com/datasets/pritydas825/mediscan-dataset
+
+The classification task contains four categories:
 
 * 🦴 **Bone**
 * 🧠 **Brain**
 * ❤️ **Heart**
 * 🫁 **Lungs**
 
-**Dataset Link:**
-https://www.kaggle.com/datasets/pritydas825/mediscan-dataset
+The implementation collects supported image formats including:
+
+* `.png`
+* `.jpg`
+* `.jpeg`
+* `.webp`
+
+The collected data is split into:
+
+* **80% Training**
+* **20% Validation**
+
+using `train_test_split` with `random_state=42`.
+
+> **Note:** The current notebook constructs its own training and validation split from the configured dataset directory.
 
 ---
 
-## 📖 Overview
+## ✨ Features
 
-**Mediscan-HybridViT** is a dual-model deep learning framework for multi-class medical image classification.
-
-The project implements and compares two different architectures:
-
-### 🧠 1. Mediscan-HybridViT — Hybrid CNN–Transformer
-
-A hybrid architecture that combines **MONAI ResNet-10** for local feature extraction with a **Transformer Encoder** for global context modeling.
-
-### 🏥 2. MedicalClassifier — DenseNet-121 Baseline
-
-A CNN-based baseline built with **MONAI DenseNet-121**, enhanced with **class-weighted Cross-Entropy Loss** to address severe class imbalance.
-
-The framework is designed to explore the advantages of combining local convolutional features with global Transformer-based representations while comparing them with a strong DenseNet-121 baseline.
-
----
-
-## ✨ Key Features
-
-* 🧠 Dual-model architecture for comparative experiments
-* 🔬 Hybrid CNN + Vision Transformer pipeline
+* 🧠 Two medical image classification architectures
+* 🔬 Hybrid CNN–Transformer model
 * 🏥 DenseNet-121 baseline model
-* ⚡ MONAI-based medical image preprocessing
-* 🎨 Automatic RGB channel normalization
-* 📊 Class imbalance handling with weighted loss
-* 🔍 Multi-head self-attention for global feature modeling
+* 🎨 Automatic image channel normalization
+* 📏 Image resizing to `224 × 224`
+* 🔄 MONAI-based data augmentation
+* ⚖️ Class-weighted loss for the DenseNet-121 baseline
+* 🔍 Transformer-based global context modeling
 * 👁️ Token activation visualization for the HybridViT model
-* 📈 Accuracy, Precision, Recall, and F1-score evaluation
-* 🚀 PyTorch Lightning training pipelines
-* 💾 Automatic checkpoint management
+* 📊 Classification report and confusion matrix generation
+* 📈 PyTorch Lightning training and validation
+* 💾 Model checkpointing support
 
 ---
 
@@ -60,113 +82,154 @@ The framework is designed to explore the advantages of combining local convoluti
 
 ## 🧠 Model 1: Mediscan-HybridViT
 
-The proposed HybridViT architecture combines a CNN backbone with Transformer-based global context modeling.
+The primary model combines a convolutional backbone with a Transformer Encoder.
 
 ```text
-Input Image (3 × 224 × 224)
-            │
-            ▼
-   MONAI ResNet-10
-  Local Feature Extraction
-            │
-            ▼
-Feature Map (256 × 28 × 28)
-            │
-            ▼
- 1×1 Convolution Projection
-            │
-            ▼
- Flatten into 784 Tokens
-            │
-            ▼
-Learnable Position Embeddings
-            │
-            ▼
- Transformer Encoder ×2
- Multi-Head Self-Attention
-            │
-            ▼
- Global Average Pooling
-            │
-            ▼
-  MLP Classification Head
-            │
-            ▼
- Output (4 Classes)
+Input Image
+(3 × 224 × 224)
+        │
+        ▼
+┌──────────────────────┐
+│    MONAI ResNet-10   │
+│ Local Feature Learning│
+└──────────────────────┘
+        │
+        ▼
+Feature Map
+(256 × 28 × 28)
+        │
+        ▼
+1×1 Convolution Projection
+        │
+        ▼
+Flatten into 784 Spatial Tokens
+        │
+        ▼
+Learnable Positional Embeddings
+        │
+        ▼
+Transformer Encoder ×2
+Multi-Head Self-Attention
+        │
+        ▼
+Global Mean Pooling
+        │
+        ▼
+LayerNorm + Linear Layer
+        │
+        ▼
+Output: 4 Classes
 ```
 
-### Architecture Components
+### Architecture Details
 
-* **Backbone:** MONAI ResNet-10
-* **Feature Map:** `256 × 28 × 28`
-* **Projection Layer:** `1×1` Convolution
-* **Number of Tokens:** `28 × 28 = 784`
-* **Hidden Dimension:** `256`
-* **Transformer Layers:** `2`
-* **Attention Heads:** `4`
-* **Classifier:** LayerNorm + Linear Layer
-* **Loss Function:** Cross-Entropy Loss
-* **Optimizer:** AdamW
+The model is configured with:
 
-The CNN extracts local hierarchical features, while the Transformer learns relationships between different spatial regions of the medical image.
+| Component              | Configuration      |
+| ---------------------- | ------------------ |
+| CNN Backbone           | MONAI ResNet-10    |
+| Input Channels         | 3                  |
+| Feature Map            | `256 × 28 × 28`    |
+| Projection             | `1×1 Conv2D`       |
+| Number of Tokens       | `28 × 28 = 784`    |
+| Hidden Dimension       | 256                |
+| Attention Heads        | 4                  |
+| Transformer Layers     | 2                  |
+| Transformer Activation | GELU               |
+| Dropout                | 0.1                |
+| Classifier             | LayerNorm + Linear |
+| Output Classes         | 4                  |
+
+### How It Works
+
+1. The **ResNet-10 backbone** extracts local spatial features from the input image.
+2. The resulting feature map is projected using a **1×1 convolution**.
+3. The `28 × 28` spatial feature map is flattened into **784 tokens**.
+4. Learnable positional embeddings are added to preserve spatial information.
+5. A two-layer Transformer Encoder processes the token sequence using multi-head self-attention.
+6. Global mean pooling aggregates the token representations.
+7. A classification head produces logits for the four diagnostic categories.
 
 ---
 
-## 🏥 Model 2: MedicalClassifier — DenseNet-121 Baseline
+## 🏥 Model 2: DenseNet-121 Baseline
 
-The second pipeline uses MONAI's **DenseNet-121** as a baseline for comparison.
+The second model uses MONAI's **DenseNet-121** architecture as a convolutional baseline.
 
 ```text
-Input Image (3 × 224 × 224)
-            │
-            ▼
-    MONAI DenseNet-121
- Dense Feature Connections
-            │
-            ▼
- Weighted Cross-Entropy Loss
- [4.0, 20.0, 1.0, 0.5]
-            │
-            ▼
- TorchMetrics Evaluation
- Accuracy • Precision
- Recall • F1-Score
-            │
-            ▼
- Output (4 Classes)
+Input Image
+(3 × 224 × 224)
+        │
+        ▼
+┌──────────────────────┐
+│   MONAI DenseNet-121 │
+│ Dense Feature Learning│
+└──────────────────────┘
+        │
+        ▼
+Weighted Cross-Entropy Loss
+        │
+        ▼
+Output: 4 Classes
 ```
 
-### Class Imbalance Strategy
+### Class-Weighted Loss
 
-The DenseNet-121 model uses class-specific weights:
+The DenseNet-121 model uses the following class weights:
 
 ```python
-weights = torch.tensor([4.0, 20.0, 1.0, 0.5])
-loss_fn = nn.CrossEntropyLoss(weight=weights)
+[4.0, 20.0, 1.0, 0.5]
 ```
 
-These weights increase the loss penalty for errors on underrepresented classes.
+The weights are registered as a PyTorch buffer so they automatically move with the model between CPU and GPU.
 
-The class weights are registered as a buffer so they automatically move between CPU and GPU together with the model.
+```python
+weights = torch.tensor(
+    [4.0, 20.0, 1.0, 0.5],
+    dtype=torch.float
+)
+
+self.register_buffer(
+    "class_weights",
+    weights
+)
+
+self.loss_fn = nn.CrossEntropyLoss(
+    weight=self.class_weights
+)
+```
+
+This strategy increases the training penalty for errors involving classes assigned higher weights.
 
 ---
 
 # 🎨 Image Preprocessing
 
-Medical images may contain different numbers of channels. The project includes custom functions to ensure that all images are converted into a consistent **3-channel RGB format**.
+Medical images can contain different numbers of channels. The project includes custom preprocessing functions to ensure that all images have a consistent **three-channel input format**.
 
 ### Channel Handling
 
 ```text
-Grayscale Image (1 Channel) ──► Convert to 3 Channels
-RGB Image (3 Channels) ───────► Keep Original
-RGBA Image (4 Channels) ──────► Remove Alpha Channel
+Grayscale Image (1 Channel)
+          │
+          ▼
+Repeat Channel → 3 Channels
+
+RGB Image (3 Channels)
+          │
+          ▼
+Keep Original Format
+
+RGBA / Multi-Channel Image (>3 Channels)
+          │
+          ▼
+Keep First 3 Channels
 ```
 
-Two channel normalization functions are used across the pipelines:
+Two channel-processing functions are used:
 
-* `ensure_rgb`
-* `force_three_channels`
+* `ensure_rgb()` for the HybridViT pipeline
+* `force_three_channels()` for the DenseNet-121 pipeline
 
 All images are resized to:
 
@@ -174,109 +237,203 @@ All images are resized to:
 224 × 224
 ```
 
-and intensity values are scaled before training.
+and intensity scaling is applied before model training.
 
 ---
 
 # 🔄 Data Augmentation
 
-The project uses MONAI transformations to improve model robustness.
+## HybridViT Pipeline
 
-### HybridViT Pipeline
+Training images use:
 
-* `RandRotate90d`
-* `RandFlipd`
+* `RandRotate90d` with probability `0.5`
+* `RandFlipd` with probability `0.5`
 
-### DenseNet-121 Pipeline
+Validation images are resized and normalized without random augmentation.
 
-* `RandFlipd`
-* `RandRotated`
+## DenseNet-121 Pipeline
 
-These augmentations introduce controlled variation during training and help improve generalization.
+Training images use:
+
+* `RandFlipd` with probability `0.5`
+* `RandRotated` with probability `0.5`
+
+The DenseNet pipeline also uses MONAI's `list_data_collate` function for DataLoader batching.
 
 ---
 
-# 📊 Dataset Preparation
+# ⚙️ Training Configuration
 
-The dataset contains images from the following four classes:
+## 🧠 HybridViT Training
 
-| Index | Class |
-| ----: | ----- |
-|     0 | Bone  |
-|     1 | Brain |
-|     2 | Heart |
-|     3 | Lungs |
+The HybridViT model is trained using PyTorch Lightning with the following configuration:
 
-The available data is split into training and validation sets using:
+| Parameter          | Value     |
+| ------------------ | --------- |
+| Batch Size         | 16        |
+| Learning Rate      | `1e-4`    |
+| Optimizer          | AdamW     |
+| Weight Decay       | `1e-4`    |
+| Maximum Epochs     | 10        |
+| Accelerator        | Auto      |
+| Checkpoint Monitor | `val_acc` |
+
+The best checkpoint is selected based on validation accuracy.
 
 ```python
-train_test_split(
-    data_dicts,
-    test_size=0.2,
-    random_state=42
+checkpoint_callback = ModelCheckpoint(
+    monitor="val_acc",
+    mode="max",
+    filename="best-hybrid-mediscan",
+    save_top_k=1
 )
 ```
 
-This creates an **80% training split** and a **20% validation split**.
+---
+
+## 🏥 DenseNet-121 Training
+
+The DenseNet-121 baseline uses:
+
+| Parameter      | Value  |
+| -------------- | ------ |
+| Batch Size     | 16     |
+| Learning Rate  | `2e-4` |
+| Optimizer      | AdamW  |
+| Weight Decay   | `1e-5` |
+| Maximum Epochs | 15     |
+| Accelerator    | Auto   |
+| Devices        | 1      |
 
 ---
 
-# 📈 Evaluation & Metrics
+# 📈 Evaluation
 
-The models are evaluated using classification metrics appropriate for multi-class classification.
+## HybridViT Evaluation
 
-### Metrics
+The HybridViT pipeline performs explicit evaluation on the validation DataLoader and generates:
 
-* **Accuracy**
-* **Precision**
-* **Recall**
-* **F1-Score**
-* **Classification Report**
-* **Confusion Matrix**
+* Classification predictions
+* Scikit-learn classification report
+* Confusion matrix
 
-The HybridViT pipeline generates a Scikit-learn classification report and confusion matrix.
+The confusion matrix is visualized using Seaborn.
 
-The DenseNet-121 pipeline uses TorchMetrics for training and validation accuracy and defines macro Precision, Recall, and F1-score metrics for evaluation.
+```python
+cm = confusion_matrix(
+    all_labels,
+    all_preds
+)
+
+sns.heatmap(
+    cm,
+    annot=True,
+    fmt="d",
+    xticklabels=class_names,
+    yticklabels=class_names
+)
+```
 
 ---
 
-# 👁️ Explainability & Visualization
+## DenseNet-121 Evaluation
 
-The **Mediscan-HybridViT** model includes a visualization pipeline based on Transformer token representations.
+The DenseNet-121 model is evaluated using the PyTorch Lightning validation pipeline:
 
-The visualization process:
+```python
+val_results = trainer.validate(
+    model=model,
+    dataloaders=val_loader,
+    ckpt_path="best"
+)
+```
 
-1. Extracts features from the ResNet-10 backbone.
-2. Projects features using the `1×1` convolution layer.
-3. Converts the feature map into spatial tokens.
-4. Processes the tokens through the Transformer Encoder.
-5. Calculates the variance across each token's feature dimension.
-6. Reshapes the values into a `28 × 28` activation map.
-7. Resizes the map to `224 × 224`.
-8. Generates an OpenCV `COLORMAP_JET` heatmap.
-9. Overlays the heatmap on the original image.
+The current implementation logs:
 
-The visualization also displays:
+* Training Loss
+* Training Accuracy
+* Validation Loss
+* Validation Accuracy
 
+The code also initializes macro Precision, Recall, and F1-score metric objects for future extension.
+
+---
+
+# 👁️ HybridViT Visualization
+
+The HybridViT model includes a custom visualization pipeline that selects samples from the validation data and displays predictions alongside token activation overlays.
+
+### Visualization Workflow
+
+```text
+Validation Image
+       │
+       ▼
+ResNet-10 Feature Extraction
+       │
+       ▼
+Feature Projection
+       │
+       ▼
+Transformer Encoder Output
+       │
+       ▼
+Variance Across Token Features
+       │
+       ▼
+28 × 28 Activation Map
+       │
+       ▼
+Resize to 224 × 224
+       │
+       ▼
+OpenCV JET Heatmap
+       │
+       ▼
+Overlay on Original Image
+```
+
+The visualization displays:
+
+* Original image
 * True class
 * Predicted class
-* Prediction confidence
+* Softmax confidence score
 * Match or mismatch status
+* Token activation overlay
 
-> **Note:** The current visualization is based on Transformer token activation variance. It is not a direct extraction of Transformer attention weights or a clinically validated saliency method.
+The visualization function selects samples representing the available classes and produces a qualitative prediction summary.
+
+> **Important:** The current heatmap is calculated using the variance of Transformer token representations. It is an activation-based visualization and is **not a direct visualization of Transformer attention weights** or a clinically validated saliency method.
 
 ---
 
-# ⚙️ Installation
+# 🛠️ Technologies Used
 
-## 1. Clone the Repository
+| Category             | Technologies               |
+| -------------------- | -------------------------- |
+| Programming Language | Python                     |
+| Deep Learning        | PyTorch                    |
+| Training Framework   | PyTorch Lightning          |
+| Medical Imaging      | MONAI                      |
+| Metrics              | TorchMetrics, Scikit-learn |
+| Computer Vision      | OpenCV                     |
+| Visualization        | Matplotlib, Seaborn        |
+| Data Processing      | NumPy, Pandas              |
+
+---
+
+# 📦 Installation
+
+## Clone the Repository
 
 ```bash
 git clone https://github.com/prityd825/Mediscan-HybridViT.git
 cd Mediscan-HybridViT
 ```
 
-## 2. Create a Virtual Environment
+## Create a Virtual Environment
 
 ### Windows
 
@@ -292,15 +449,7 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 
-## 3. Install Dependencies
-
-If a `requirements.txt` file is available:
-
-```bash
-pip install -r requirements.txt
-```
-
-Or install the required packages manually:
+## Install Dependencies
 
 ```bash
 pip install torch torchvision monai pytorch-lightning torchmetrics matplotlib numpy pandas scikit-learn opencv-python seaborn
@@ -308,202 +457,58 @@ pip install torch torchvision monai pytorch-lightning torchmetrics matplotlib nu
 
 ---
 
-# 🚀 Training
+# 🚀 Usage
 
-## Train the Mediscan-HybridViT Model
+The current implementation is provided as a Jupyter Notebook containing the complete workflow for:
 
-```python
-import pytorch_lightning as pl
-from pytorch_lightning.callbacks import ModelCheckpoint
+1. Dataset preparation
+2. Image preprocessing
+3. HybridViT training
+4. HybridViT evaluation
+5. Confusion matrix generation
+6. Activation visualization
+7. DenseNet-121 baseline training
+8. DenseNet-121 validation
 
-dm = MediscanDataModule(
-    train_files,
-    val_files,
-    batch_size=16
-)
+Open and run the notebook in Jupyter or Kaggle:
 
-model = HybridLightningModule(
-    num_classes=4,
-    lr=1e-4
-)
-
-checkpoint_callback = ModelCheckpoint(
-    monitor="val_acc",
-    mode="max",
-    filename="best-hybrid-mediscan",
-    save_top_k=1
-)
-
-trainer = pl.Trainer(
-    max_epochs=10,
-    accelerator="auto",
-    callbacks=[checkpoint_callback],
-    log_every_n_steps=5
-)
-
-trainer.fit(
-    model,
-    datamodule=dm
-)
+```bash
+jupyter notebook
 ```
 
----
-
-## Train the DenseNet-121 Baseline
-
-```python
-model = MedicalClassifier(
-    num_classes=4,
-    lr=2e-4
-)
-
-trainer = pl.Trainer(
-    max_epochs=15,
-    accelerator="auto",
-    devices=1,
-    enable_checkpointing=True,
-    log_every_n_steps=10
-)
-
-trainer.fit(
-    model,
-    train_loader,
-    val_loader
-)
-```
-
----
-
-# 📈 Evaluation
-
-## HybridViT Evaluation
-
-The HybridViT model can be evaluated using the validation DataLoader to generate:
-
-* Classification report
-* Confusion matrix
-* Per-class predictions
-
-```python
-model.eval()
-
-all_preds = []
-all_labels = []
-
-with torch.no_grad():
-    for batch in dm.val_dataloader():
-        images = batch["image"].to(device)
-        labels = batch["label"]
-
-        outputs = model(images)
-        preds = torch.argmax(outputs, dim=1).cpu().numpy()
-
-        all_preds.extend(preds)
-        all_labels.extend(labels.numpy())
-```
-
-## DenseNet-121 Evaluation
-
-Evaluate the DenseNet-121 model using the best available checkpoint:
-
-```python
-val_results = trainer.validate(
-    model=model,
-    dataloaders=val_loader,
-    ckpt_path="best"
-)
-
-print(val_results)
-```
-
----
-
-# 👁️ Generate HybridViT Activation Visualizations
-
-Generate balanced samples from all four classes and visualize model predictions:
-
-```python
-visualize_predictions_with_attention(
-    model,
-    dm,
-    num_samples=4
-)
-```
-
-The visualization displays the original image alongside its activation heatmap and prediction confidence.
-
----
-
-# 🛠️ Technologies Used
-
-| Category                 | Technologies               |
-| ------------------------ | -------------------------- |
-| **Programming Language** | Python                     |
-| **Deep Learning**        | PyTorch                    |
-| **Training Framework**   | PyTorch Lightning          |
-| **Medical Imaging**      | MONAI                      |
-| **Evaluation**           | TorchMetrics, Scikit-learn |
-| **Computer Vision**      | OpenCV                     |
-| **Visualization**        | Matplotlib, Seaborn        |
-| **Data Processing**      | NumPy, Pandas              |
+Then execute the notebook cells in order.
 
 ---
 
 # 🔍 Model Comparison
 
-| Feature                  | Mediscan-HybridViT             | DenseNet-121 Baseline      |
-| ------------------------ | ------------------------------ | -------------------------- |
-| Architecture             | ResNet-10 + Transformer        | DenseNet-121               |
-| Local Feature Extraction | ResNet-10                      | Dense Convolutional Blocks |
-| Global Context Learning  | Transformer Self-Attention     | Dense Feature Connections  |
-| Class Imbalance Strategy | Data Augmentation              | Weighted Cross-Entropy     |
-| Explainability           | Token Activation Visualization | Not Yet Implemented        |
-| Training Framework       | PyTorch Lightning              | PyTorch Lightning          |
-| Input Size               | 224 × 224                      | 224 × 224                  |
+| Feature                  | Mediscan-HybridViT                       | DenseNet-121 Baseline     |
+| ------------------------ | ---------------------------------------- | ------------------------- |
+| Architecture             | ResNet-10 + Transformer                  | DenseNet-121              |
+| Local Feature Learning   | ResNet-10                                | Dense Connections         |
+| Global Context Modeling  | Multi-Head Self-Attention                | CNN Feature Propagation   |
+| Class Imbalance Handling | Data Augmentation                        | Weighted Cross-Entropy    |
+| Input Size               | 224 × 224                                | 224 × 224                 |
+| Training Framework       | PyTorch Lightning                        | PyTorch Lightning         |
+| Evaluation               | Classification Report + Confusion Matrix | Lightning Validation      |
+| Visualization            | Token Activation Overlay                 | Not Currently Implemented |
 
 ---
 
 # 🚧 Future Improvements
 
-* [ ] Add Grad-CAM visualization for the DenseNet-121 baseline
-* [ ] Compare Grad-CAM with HybridViT token activation visualizations
-* [ ] Add direct Transformer attention visualization or attention rollout
-* [ ] Perform detailed side-by-side performance comparison between both models
-* [ ] Support additional medical imaging modalities
-* [ ] Add multi-label disease classification
+* [ ] Add Grad-CAM for DenseNet-121
+* [ ] Log Precision, Recall, and F1-score during DenseNet validation
+* [ ] Add direct Transformer attention extraction or attention rollout
+* [ ] Compare both models using a common evaluation protocol
+* [ ] Add per-class performance comparison
+* [ ] Add ROC/AUC analysis where appropriate
 * [ ] Export trained models to ONNX
-* [ ] Add TensorRT optimization
-* [ ] Implement distributed multi-GPU training
-* [ ] Extend the framework to support 3D CT and MRI volumes
+* [ ] Support distributed multi-GPU training
+* [ ] Extend the framework to 3D medical images such as CT and MRI volumes
 
 ---
 
-# 🤝 Contributing
-
-Contributions are welcome! 🎉
-
-1. Fork the repository.
-2. Create a feature branch:
-
-```bash
-git checkout -b feature-name
-```
-
-3. Commit your changes:
-
-```bash
-git commit -m "Add new feature"
-```
-
-4. Push your branch:
-
-```bash
-git push origin feature-name
-```
-
-5. Open a Pull Request.
-
----
 
 # 👩‍💻 Author
 
