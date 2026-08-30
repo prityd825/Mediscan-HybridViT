@@ -1057,11 +1057,6 @@ https://github.com/prityd825
 
 ---
 
-# 📄 License
-
-This project is released under the **MIT License**.
-
----
 
 ⭐ **If you find this project useful, consider giving the repository a star!**
 
